@@ -1,6 +1,18 @@
 extern crate clap;
 use clap::{App, Arg};
+use std::io::Read;
+use std::fs::File;
+use std::error::Error;
 
+
+fn read_file(filename: &str) -> Result<Vec<u8>, Box<Error>> {
+    let mut file = File::open(filename)?;
+
+    let mut buffer = vec![];
+    file.read_to_end(&mut buffer)?;
+
+    Ok(buffer)
+}
 
 fn main() {
 
@@ -16,11 +28,23 @@ fn main() {
             .long("debug")
             .help("Run emulator with debug output");
 
-    App::new("rory")
-        .version("0.1.0")
-        .about("GameBoy emulator")
-        .author("Dan D'Avella")
-        .arg(input_arg)
-        .arg(debug_arg)
-        .get_matches();
+    let matches =
+        App::new("rory")
+            .version("0.1.0")
+            .about("GameBoy emulator")
+            .author("Dan D'Avella")
+            .arg(input_arg)
+            .arg(debug_arg)
+            .get_matches();
+
+    /* this is safe to unwrap since it is a required argument */
+    let filename = matches.value_of("ROM_FILE").unwrap();
+    let rom_array = match read_file(&filename) {
+        Ok(result) => result,
+        Err(error) => panic!("failed to read ROM file: {}", error)
+    };
+
+    for x in rom_array {
+        println!("0x{:02x}", x);
+    }
 }
