@@ -4,6 +4,8 @@ use std::io::Read;
 use std::fs::File;
 use std::error::Error;
 
+mod cpu;
+
 
 fn read_file(filename: &str) -> Result<Vec<u8>, Box<Error>> {
     let mut file = File::open(filename)?;
@@ -44,7 +46,5 @@ fn main() {
         Err(error) => panic!("failed to read ROM file: {}", error)
     };
 
-    for x in rom_array {
-        println!("0x{:02x}", x);
-    }
+    cpu::emulate(rom_array);
 }
