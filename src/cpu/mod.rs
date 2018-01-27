@@ -1,6 +1,7 @@
 mod types;
-mod jump;
 mod memory;
+mod jump;
+mod alu;
 
 
 pub fn emulate(rom_array: Vec<u8>) {
@@ -38,6 +39,8 @@ fn decode(rom_array: &Vec<u8>, state: &mut types::GameState) {
         0xf3 => { state.pc +=1; state.ticks += 4; String::from("DI") },
         /* LD REG -> REG */
         0x40 ... 0x7f => memory::load_reg(state, opcode),
+        /* XOR REG */
+        0xa8 ... 0xaf => alu::xor_reg(state, (opcode & 0x0f) - 0x8),
         /* UNRECOGNIZED INSTRUCTION */
         _ => panic!("Unrecognized opcode 0x{:02x} at pc 0x{:04x}", opcode, pc)
     };
