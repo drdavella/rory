@@ -1,12 +1,17 @@
 CARGO = cargo
 
 CARGO_OPTS =
+BUILD_OPTS =
 
 all:
 	$(MAKE) build
 
 build:
-	$(CARGO) $(CARGO_OPTS) build
+	$(CARGO) $(CARGO_OPTS) build $(BUILD_OPTS)
+
+debug: BUILD_OPTS = "--features=debug"
+debug: build
+
 
 clean:
 	$(CARGO) $(CARGO_OPTS) clean
