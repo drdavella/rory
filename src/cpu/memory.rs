@@ -1,7 +1,8 @@
 use cpu::types;
+use cpu::debug;
 
 
-pub fn load_reg(state: &mut types::GameState, opcode: u8) -> String {
+pub fn load_reg(state: &mut types::GameState, opcode: u8) -> debug::Debug {
     let high = opcode >> 4;
     let low = opcode & 0xf;
     let dest_idx = (high / low) * (high - 0x4);
@@ -25,7 +26,7 @@ pub fn load_reg(state: &mut types::GameState, opcode: u8) -> String {
 }
 
 fn load_compound_register(state: &mut types::GameState, opcode: u8,
-                          code_bytes: &[u8]) -> String {
+                          code_bytes: &[u8]) -> debug::Debug {
 
     let (high, low) = match opcode {
         0x01 => (types::Register::B, types::Register::C),
@@ -43,7 +44,7 @@ fn load_compound_register(state: &mut types::GameState, opcode: u8,
 }
 
 pub fn load_dword(state: &mut types::GameState, opcode: u8,
-                  code_bytes: &[u8]) -> String {
+                  code_bytes: &[u8]) -> debug::Debug {
 
     let msg = match opcode {
         0x31 => {

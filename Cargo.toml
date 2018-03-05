@@ -5,3 +5,6 @@ authors = ["Daniel D'Avella <drdavella@gmail.com>"]
 
 [dependencies]
 clap = "*"
+
+[features]
+debug = []
