@@ -20,7 +20,7 @@ pub fn load_reg(state: &mut types::GameState, opcode: u8) -> debug::Debug {
         }
     }
 
-    format!("LD {} => {}",
+    debug_format!("LD {} => {}",
             types::reg_to_str(source),
             types::reg_to_str(dest))
 }
@@ -38,7 +38,7 @@ fn load_compound_register(state: &mut types::GameState, opcode: u8,
     types::set_register(state, &high, code_bytes[1]);
     types::set_register(state, &low, code_bytes[0]);
 
-    format!("LD 0x{:02x}{:02x} => {}{}",
+    debug_format!("LD 0x{:02x}{:02x} => {}{}",
         code_bytes[1], code_bytes[0],
         types::reg_to_str(&high), types::reg_to_str(&low))
 }
@@ -50,7 +50,7 @@ pub fn load_dword(state: &mut types::GameState, opcode: u8,
         0x31 => {
             /* Load stack pointer */
             state.sp = ((code_bytes[1] as u16) << 8) | (code_bytes[0] as u16);
-            format!("LD 0x{:04x} => SP", state.sp)
+            debug_format!("LD 0x{:04x} => SP", state.sp)
         }
         _ => {
             load_compound_register(state, opcode, code_bytes)
