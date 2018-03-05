@@ -1,8 +1,9 @@
+#[macro_use]
+mod debug;
 mod types;
 mod memory;
 mod jump;
 mod alu;
-mod debug;
 
 
 pub fn emulate(rom_array: Vec<u8>) {
