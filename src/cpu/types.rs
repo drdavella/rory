@@ -10,6 +10,7 @@ pub struct Registers {
 
 pub struct GameState {
     pub pc: u16,
+    pub sp: u16,
     pub ticks: i32,
     pub regs: Registers
 }

@@ -9,6 +9,7 @@ pub fn emulate(rom_array: Vec<u8>) {
     /* initialize emulator state */
     let mut state = types::GameState{
         pc: 0x100,
+        sp: 0xfff3,
         ticks: 0,
         regs: types::Registers{
             a: 0, b:0, c:0, d:0, e:0, h:0, l:0
@@ -41,6 +42,8 @@ fn decode(rom_array: &Vec<u8>, state: &mut types::GameState) {
         0x40 ... 0x7f => memory::load_reg(state, opcode),
         /* XOR REG */
         0xa8 ... 0xaf => alu::xor_reg(state, (opcode & 0x0f) - 0x8),
+        /* LD DOUBLE WORD */
+        0x01 | 0x11 | 0x21 | 0x31 => memory::load_dword(state, opcode, code_bytes),
         /* UNRECOGNIZED INSTRUCTION */
         _ => panic!("Unrecognized opcode 0x{:02x} at pc 0x{:04x}", opcode, pc)
     };
