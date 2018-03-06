@@ -33,13 +33,13 @@ fn decode(rom_array: &Vec<u8>, state: &mut types::GameState) {
 
     let msg = match opcode {
         /* NOP */
-        0x00 => { state.pc += 1; state.ticks+= 4; String::from("NOP") },
+        0x00 => { state.pc += 1; state.ticks+= 4; debug_format!("NOP") },
         /* HALT (must be matched before LD REG) */
         0x76 => panic!("HALT"),
         /* UNCONDITIONAL JUMP IMM */
         0xc3 => jump::uncond_imm(state, code_bytes),
         /* DISABLE INTERRUPT */
-        0xf3 => { state.pc +=1; state.ticks += 4; String::from("DI") },
+        0xf3 => { state.pc +=1; state.ticks += 4; debug_format!("DI") },
         /* LD REG -> REG */
         0x40 ... 0x7f => memory::load_reg(state, opcode),
         /* XOR REG */

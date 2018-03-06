@@ -1,7 +1,8 @@
 use cpu::types;
+use cpu::debug;
 
 
-pub fn xor_reg(state: &mut types::GameState, index: u8) -> String {
+pub fn xor_reg(state: &mut types::GameState, index: u8) -> debug::Debug {
     let source = &types::REGISTER_LIST[index as usize];
     match source {
         &types::Register::HL => panic!("Can't XOR from HL"),
@@ -14,5 +15,5 @@ pub fn xor_reg(state: &mut types::GameState, index: u8) -> String {
         }
     }
 
-    format!("XOR {}", types::reg_to_str(source))
+    debug_format!("XOR {}", types::reg_to_str(source))
 }
