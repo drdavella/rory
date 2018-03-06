@@ -50,5 +50,5 @@ fn decode(rom_array: &Vec<u8>, state: &mut types::GameState) {
         _ => panic!("Unrecognized opcode 0x{:02x} at pc 0x{:04x}", opcode, pc)
     };
 
-    println!("pc[0x{:04x}]=0x{:02x} {}", pc, opcode, msg);
+    debug_println!("pc[0x{:04x}]=0x{:02x} {}", pc, opcode, msg);
 }
