@@ -44,8 +44,12 @@ fn decode(rom_array: &Vec<u8>, state: &mut types::GameState) {
         0x40 ... 0x7f => memory::load_reg(state, opcode),
         /* XOR REG */
         0xa8 ... 0xaf => alu::xor_reg(state, (opcode & 0x0f) - 0x8),
+        /* LD SINGLE WORD */
+        0x06 | 0x16 | 0x26 | 0x36 | 0x0e | 0x1e | 0x2e | 0x3e =>
+            memory::load_word_imm(state, opcode, code_bytes),
         /* LD DOUBLE WORD */
-        0x01 | 0x11 | 0x21 | 0x31 => memory::load_dword(state, opcode, code_bytes),
+        0x01 | 0x11 | 0x21 | 0x31 =>
+            memory::load_dword_imm(state, opcode, code_bytes),
         /* UNRECOGNIZED INSTRUCTION */
         _ => panic!("Unrecognized opcode 0x{:02x} at pc 0x{:04x}", opcode, pc)
     };

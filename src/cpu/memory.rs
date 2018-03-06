@@ -25,6 +25,26 @@ pub fn load_reg(state: &mut types::GameState, opcode: u8) -> debug::Debug {
             types::reg_to_str(dest))
 }
 
+pub fn load_word_imm(state: &mut types::GameState, opcode: u8,
+                     code_bytes: &[u8]) -> debug::Debug {
+    let high = opcode >> 4;
+    let low = opcode & 0xf;
+    let dest_idx = (low >> 3) + (high * 2);
+
+    let reg = &types::REGISTER_LIST[dest_idx as usize];
+    match reg {
+        &types::Register::HL => panic!("Load to HL not implemented"),
+        _ => {
+            types::set_register(state, reg, code_bytes[0]);
+            state.ticks += 8;
+        }
+    }
+
+    state.pc += 2;
+
+    debug_format!("LD 0x{:02x} => {}", code_bytes[0], types::reg_to_str(reg))
+}
+
 fn load_compound_register(state: &mut types::GameState, opcode: u8,
                           code_bytes: &[u8]) -> debug::Debug {
 
@@ -43,8 +63,8 @@ fn load_compound_register(state: &mut types::GameState, opcode: u8,
         types::reg_to_str(&high), types::reg_to_str(&low))
 }
 
-pub fn load_dword(state: &mut types::GameState, opcode: u8,
-                  code_bytes: &[u8]) -> debug::Debug {
+pub fn load_dword_imm(state: &mut types::GameState, opcode: u8,
+                      code_bytes: &[u8]) -> debug::Debug {
 
     let msg = match opcode {
         0x31 => {
