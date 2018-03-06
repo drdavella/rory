@@ -1,6 +1,6 @@
-/*
+/******************************************************************************
  * DEBUG FUNCTIONS
- */
+ *****************************************************************************/
 #[cfg(feature = "debug")]
 pub type Debug = String;
 
@@ -18,20 +18,22 @@ macro_rules! debug_println {
     }
 }
 
-/*
+/******************************************************************************
  * NORMAL FUNCTIONS
- */
+ *****************************************************************************/
 #[cfg(not(feature = "debug"))]
 pub type Debug = ();
 
 #[cfg(not(feature = "debug"))]
 macro_rules! debug_format {
-    () => ()
+   ( $( $args:tt )+ ) => {
+       ()
+   }
 }
 
 #[cfg(not(feature = "debug"))]
 macro_rules! debug_println {
     ( $( $args:tt )+ ) => {
-        () => ()
+        ()
     }
 }
