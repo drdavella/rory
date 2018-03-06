@@ -31,7 +31,7 @@ fn decode(rom_array: &Vec<u8>, state: &mut types::GameState) {
         _ => panic!("Bad code bytes at pc 0x{:04}", pc)
     };
 
-    let msg = match opcode {
+    let _msg = match opcode {
         /* NOP */
         0x00 => { state.pc += 1; state.ticks+= 4; debug_format!("NOP") },
         /* HALT (must be matched before LD REG) */
@@ -50,5 +50,5 @@ fn decode(rom_array: &Vec<u8>, state: &mut types::GameState) {
         _ => panic!("Unrecognized opcode 0x{:02x} at pc 0x{:04x}", opcode, pc)
     };
 
-    debug_println!("pc[0x{:04x}]=0x{:02x} {}", pc, opcode, msg);
+    debug_println!("pc[0x{:04x}]=0x{:02x} {}", pc, opcode, _msg);
 }

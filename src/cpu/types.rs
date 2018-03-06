@@ -24,6 +24,7 @@ pub const REGISTER_LIST: [Register; 8] = [
     Register::H, Register::L, Register::HL, Register::A
 ];
 
+#[allow(dead_code)]
 pub fn reg_to_str(reg: &Register) -> &str {
     match reg {
         &Register::A => "A",
