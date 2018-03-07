@@ -16,6 +16,7 @@ pub fn emulate(rom_array: Vec<u8>) {
         regs: types::Registers{
             a: 0, b:0, c:0, d:0, e:0, h:0, l:0
         },
+        memory: [0; 0x10000],
     };
 
     loop {
@@ -44,6 +45,9 @@ fn decode(rom_array: &Vec<u8>, state: &mut types::GameState) {
         0x40 ... 0x7f => memory::load_reg(state, opcode),
         /* XOR REG */
         0xa8 ... 0xaf => alu::xor_reg(state, (opcode & 0x0f) - 0x8),
+        /* STORE AND INC/DEC */
+        0x22 => memory::store_and_update(state, memory::Operation::Increment),
+        0x32 => memory::store_and_update(state, memory::Operation::Decrement),
         /* LD SINGLE WORD */
         0x06 | 0x16 | 0x26 | 0x36 | 0x0e | 0x1e | 0x2e | 0x3e =>
             memory::load_word_imm(state, opcode, code_bytes),

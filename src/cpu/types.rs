@@ -12,7 +12,8 @@ pub struct GameState {
     pub pc: u16,
     pub sp: u16,
     pub ticks: i32,
-    pub regs: Registers
+    pub regs: Registers,
+    pub memory: [u8; 0x10000]
 }
 
 pub enum Register {
@@ -69,6 +70,6 @@ pub fn set_hl(state: &mut GameState, val: u16) {
     state.regs.l = (val & 0xff) as u8;
 }
 
-pub fn get_hl(state: GameState) -> u16 {
+pub fn get_hl(state: &GameState) -> u16 {
     ((state.regs.h as u16) << 8) & (state.regs.l as u16)
 }

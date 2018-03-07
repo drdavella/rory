@@ -2,6 +2,11 @@ use cpu::types;
 use cpu::debug;
 
 
+pub enum Operation {
+    Increment, Decrement
+}
+
+
 pub fn load_reg(state: &mut types::GameState, opcode: u8) -> debug::Debug {
     let high = opcode >> 4;
     let low = opcode & 0xf;
@@ -81,4 +86,22 @@ pub fn load_dword_imm(state: &mut types::GameState, opcode: u8,
     state.pc += 3;
 
     msg
+}
+
+pub fn store_and_update(state: &mut types::GameState, operation: Operation) -> debug::Debug {
+
+    let addr = types::get_hl(state);
+    state.memory[addr as usize] = types::get_register(state, &types::Register::A);
+
+    let new_addr = match operation {
+        Operation::Decrement => (addr + 0xfffe) & 0xffff,
+        Operation::Increment => (addr + 1) & 0xffff
+    };
+
+    types::set_hl(state, new_addr);
+
+    state.ticks += 8;
+    state.pc += 1;
+
+    debug_format!("LD (HL +/-): A => mem[0x{:04x}]", addr)
 }
