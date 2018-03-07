@@ -8,12 +8,17 @@ pub struct Registers {
     pub l: u8
 }
 
+pub struct Flags {
+    pub zero: bool,
+}
+
 pub struct GameState {
     pub pc: u16,
     pub sp: u16,
     pub ticks: i32,
+    pub flags: Flags,
     pub regs: Registers,
-    pub memory: [u8; 0x10000]
+    pub memory: [u8; 0x10000],
 }
 
 pub enum Register {
