@@ -42,6 +42,7 @@ fn decode(rom_array: &Vec<u8>, state: &mut types::GameState) {
         0x76 => panic!("HALT"),
         /* UNCONDITIONAL JUMP IMM */
         0xc3 => jump::uncond_imm(state, code_bytes),
+        0x20 => jump::cond_imm(state, code_bytes, jump::Condition::NotZero),
         /* DISABLE INTERRUPT */
         0xf3 => { state.pc +=1; state.ticks += 4; debug_format!("DI") },
         /* LD REG -> REG */
