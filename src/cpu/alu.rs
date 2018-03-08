@@ -26,7 +26,7 @@ pub fn dec_reg(state: &mut types::GameState, opcode: u8) -> debug::Debug {
     let new_val = match reg {
         &types::Register::HL => panic!("DEC HL is not implemented"),
         _ => {
-            let new_val = types::get_register(state, reg) + 0xfe;
+            let new_val = types::get_register(state, reg).wrapping_sub(1);
             types::set_register(state, reg, new_val);
             state.ticks += 4;
             new_val
