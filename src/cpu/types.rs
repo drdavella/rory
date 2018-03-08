@@ -76,5 +76,5 @@ pub fn set_hl(state: &mut GameState, val: u16) {
 }
 
 pub fn get_hl(state: &GameState) -> u16 {
-    ((state.regs.h as u16) << 8) & (state.regs.l as u16)
+    ((state.regs.h as u16) << 8) | (state.regs.l as u16)
 }
