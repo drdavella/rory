@@ -94,8 +94,8 @@ pub fn store_and_update(state: &mut types::GameState, operation: Operation) -> d
     state.memory[addr as usize] = types::get_register(state, &types::Register::A);
 
     let new_addr = match operation {
-        Operation::Decrement => (addr + 0xfffe) & 0xffff,
-        Operation::Increment => (addr + 1) & 0xffff
+        Operation::Decrement => addr.wrapping_sub(1),
+        Operation::Increment => addr.wrapping_add(1),
     };
 
     types::set_hl(state, new_addr);
