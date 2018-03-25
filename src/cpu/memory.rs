@@ -10,10 +10,11 @@ pub enum Operation {
 pub fn load_reg(state: &mut types::GameState, opcode: u8) -> debug::Debug {
     let high = opcode >> 4;
     let low = opcode & 0xf;
-    let dest_idx = (high / low) * (high - 0x4);
+    let dest_idx = (low / 8) + (high - 0x4) * 2;
 
-    let source = &types::REGISTER_LIST[low as usize];
+    let source = &types::REGISTER_LIST[(low % 8) as usize];
     let dest = &types::REGISTER_LIST[dest_idx as usize];
+    println!("high={}, low={}, dest_idx={}", high, low, dest_idx);
     match (source, dest) {
         (&types::Register::HL, _) => panic!("Load to/from HL not implemented"),
         (_, &types::Register::HL) => panic!("Load to/from HL not implemented"),
