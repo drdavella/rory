@@ -61,6 +61,8 @@ fn decode(rom_array: &Vec<u8>, state: &mut types::GameState) {
         /* LD DOUBLE WORD */
         0x01 | 0x11 | 0x21 | 0x31 =>
             memory::load_dword_imm(state, opcode, code_bytes),
+        /* LD IMM ADDR */
+        0xea => memory::store_imm_addr(state, code_bytes),
         /* UNRECOGNIZED INSTRUCTION */
         _ => panic!("Unrecognized opcode 0x{:02x} at pc 0x{:04x}", opcode, pc)
     };

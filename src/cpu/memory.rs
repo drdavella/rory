@@ -106,3 +106,13 @@ pub fn store_and_update(state: &mut types::GameState, operation: Operation) -> d
 
     debug_format!("LD (HL +/-): A => mem[0x{:04x}]", addr)
 }
+
+pub fn store_imm_addr(state: &mut types::GameState, code_bytes: &[u8]) -> debug::Debug {
+    let addr = ((code_bytes[1] as u16) << 8) | code_bytes[0] as u16;
+    state.memory[addr as usize] = types::get_register(state, &types::Register::A);
+
+    state.ticks += 16;
+    state.pc += 3;
+
+    debug_format!("LD A => mem[0x{:04x}]", addr)
+}
