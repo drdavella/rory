@@ -47,6 +47,8 @@ fn decode(rom_array: &Vec<u8>, state: &mut types::GameState) {
         0xf3 => { state.pc +=1; state.ticks += 4; debug_format!("DI") },
         /* LD REG -> REG */
         0x40 ... 0x7f => memory::load_reg(state, opcode),
+        /* AND REG */
+        0xa0 ... 0xa7 => alu::and_reg(state, (opcode & 0x0f)),
         /* XOR REG */
         0xa8 ... 0xaf => alu::xor_reg(state, (opcode & 0x0f) - 0x8),
         /* DEC REG */
