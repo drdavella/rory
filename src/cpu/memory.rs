@@ -115,3 +115,14 @@ pub fn store_imm_addr(state: &mut types::GameState, code_bytes: &[u8]) -> debug:
 
     debug_format!("LD A => mem[0x{:04x}]", addr)
 }
+
+pub fn load_a_mem(state: &mut types::GameState, code_bytes: &[u8]) -> debug::Debug {
+    let addr = (0xff00 as u16).wrapping_add(code_bytes[0] as u16);
+    let value = state.memory[addr as usize];
+    types::set_register(state, &types::Register::A, value);
+
+    state.ticks += 12;
+    state.pc += 2;
+
+    debug_format!("LD mem[0x{:02x}] => A", addr)
+}
