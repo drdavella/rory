@@ -21,6 +21,11 @@ fn do_op_reg<F>(op: F, state: &mut types::GameState, index: u8, label: &str) -> 
     debug_format!("{} {}", label, types::reg_to_str(source))
 }
 
+pub fn add_reg(state: &mut types::GameState, index: u8) -> debug::Debug {
+    let add = |x: u8, y: u8| x.wrapping_add(y);
+    do_op_reg(add, state, index, "ADD")
+}
+
 pub fn and_reg(state: &mut types::GameState, index: u8) -> debug::Debug {
     let and = |x, y| x & y;
     do_op_reg(and, state, index, "AND")
