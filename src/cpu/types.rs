@@ -10,6 +10,7 @@ pub struct Registers {
 
 pub struct Flags {
     pub zero: bool,
+    pub carry: bool
 }
 
 pub struct GameState {
