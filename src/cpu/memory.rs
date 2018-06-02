@@ -1,7 +1,8 @@
 use cpu::types;
-use cpu::debug;
-
+use cpu::types::Register;
 use cpu::types::GameState;
+
+use cpu::debug::Debug;
 
 
 pub enum Operation {
@@ -9,7 +10,7 @@ pub enum Operation {
 }
 
 
-pub fn load_reg(state: &mut types::GameState, opcode: u8) -> debug::Debug {
+pub fn load_reg(state: &mut GameState, opcode: u8) -> Debug {
     let high = opcode >> 4;
     let low = opcode & 0xf;
     let dest_idx = (low / 8) + (high - 0x4) * 2;
@@ -17,8 +18,8 @@ pub fn load_reg(state: &mut types::GameState, opcode: u8) -> debug::Debug {
     let source = &types::REGISTER_LIST[(low % 8) as usize];
     let dest = &types::REGISTER_LIST[dest_idx as usize];
     match (source, dest) {
-        (&types::Register::HL, _) => panic!("Load to/from HL not implemented"),
-        (_, &types::Register::HL) => panic!("Load to/from HL not implemented"),
+        (&Register::HL, _) => panic!("Load to/from HL not implemented"),
+        (_, &Register::HL) => panic!("Load to/from HL not implemented"),
         (_, _) => {
             let reg_val = types::get_register(state, source);
             types::set_register(state, dest, reg_val);
@@ -32,15 +33,15 @@ pub fn load_reg(state: &mut types::GameState, opcode: u8) -> debug::Debug {
             types::reg_to_str(dest))
 }
 
-pub fn load_word_imm(state: &mut types::GameState, opcode: u8,
-                     code_bytes: &[u8]) -> debug::Debug {
+pub fn load_word_imm(state: &mut GameState, opcode: u8,
+                     code_bytes: &[u8]) -> Debug {
     let high = opcode >> 4;
     let low = opcode & 0xf;
     let dest_idx = (low >> 3) + (high * 2);
 
     let reg = &types::REGISTER_LIST[dest_idx as usize];
     match reg {
-        &types::Register::HL => panic!("Load to HL not implemented"),
+        &Register::HL => panic!("Load to HL not implemented"),
         _ => {
             types::set_register(state, reg, code_bytes[0]);
             state.ticks += 8;
@@ -52,13 +53,13 @@ pub fn load_word_imm(state: &mut types::GameState, opcode: u8,
     debug_format!("LD 0x{:02x} => {}", code_bytes[0], types::reg_to_str(reg))
 }
 
-fn load_compound_register(state: &mut types::GameState, opcode: u8,
-                          code_bytes: &[u8]) -> debug::Debug {
+fn load_compound_register(state: &mut GameState, opcode: u8,
+                          code_bytes: &[u8]) -> Debug {
 
     let (high, low) = match opcode {
-        0x01 => (types::Register::B, types::Register::C),
-        0x11 => (types::Register::D, types::Register::E),
-        0x21 => (types::Register::H, types::Register::L),
+        0x01 => (Register::B, Register::C),
+        0x11 => (Register::D, Register::E),
+        0x21 => (Register::H, Register::L),
         _ => panic!("Unrecognized opcode: 0x{:02x}", opcode)
     };
 
@@ -70,8 +71,8 @@ fn load_compound_register(state: &mut types::GameState, opcode: u8,
         types::reg_to_str(&high), types::reg_to_str(&low))
 }
 
-pub fn load_dword_imm(state: &mut types::GameState, opcode: u8,
-                      code_bytes: &[u8]) -> debug::Debug {
+pub fn load_dword_imm(state: &mut GameState, opcode: u8,
+                      code_bytes: &[u8]) -> Debug {
 
     let msg = match opcode {
         0x31 => {
@@ -90,10 +91,10 @@ pub fn load_dword_imm(state: &mut types::GameState, opcode: u8,
     msg
 }
 
-pub fn store_and_update(state: &mut types::GameState, operation: Operation) -> debug::Debug {
+pub fn store_and_update(state: &mut GameState, operation: Operation) -> Debug {
 
     let addr = types::get_hl(state);
-    state.memory[addr as usize] = types::get_register(state, &types::Register::A);
+    state.memory[addr as usize] = types::get_register(state, &Register::A);
 
     let new_addr = match operation {
         Operation::Decrement => addr.wrapping_sub(1),
@@ -108,9 +109,9 @@ pub fn store_and_update(state: &mut types::GameState, operation: Operation) -> d
     debug_format!("LD (HL +/-): A => mem[0x{:04x}]", addr)
 }
 
-pub fn store_imm_addr(state: &mut types::GameState, code_bytes: &[u8]) -> debug::Debug {
+pub fn store_imm_addr(state: &mut GameState, code_bytes: &[u8]) -> Debug {
     let addr = ((code_bytes[1] as u16) << 8) | code_bytes[0] as u16;
-    state.memory[addr as usize] = types::get_register(state, &types::Register::A);
+    state.memory[addr as usize] = types::get_register(state, &Register::A);
 
     state.ticks += 16;
     state.pc += 3;
@@ -118,10 +119,10 @@ pub fn store_imm_addr(state: &mut types::GameState, code_bytes: &[u8]) -> debug:
     debug_format!("LD A => mem[0x{:04x}]", addr)
 }
 
-pub fn load_a_mem(state: &mut types::GameState, code_bytes: &[u8]) -> debug::Debug {
+pub fn load_a_mem(state: &mut GameState, code_bytes: &[u8]) -> Debug {
     let addr = (0xff00 as u16).wrapping_add(code_bytes[0] as u16);
     let value = state.memory[addr as usize];
-    types::set_register(state, &types::Register::A, value);
+    types::set_register(state, &Register::A, value);
 
     state.ticks += 12;
     state.pc += 2;
@@ -129,9 +130,9 @@ pub fn load_a_mem(state: &mut types::GameState, code_bytes: &[u8]) -> debug::Deb
     debug_format!("LD mem[0x{:02x}] => A", addr)
 }
 
-pub fn store_a_mem(state: &mut GameState, code_bytes: &[u8]) -> debug::Debug {
+pub fn store_a_mem(state: &mut GameState, code_bytes: &[u8]) -> Debug {
     let addr = (0xff00 as u16).wrapping_add(code_bytes[0] as u16);
-    let value = types::get_register(state, &types::Register::A);
+    let value = types::get_register(state, &Register::A);
     state.memory[addr as usize] = value;
 
     state.ticks += 12;
