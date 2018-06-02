@@ -1,6 +1,8 @@
 use cpu::types;
 use cpu::debug;
 
+use cpu::types::GameState;
+
 
 pub enum Operation {
     Increment, Decrement
@@ -125,4 +127,15 @@ pub fn load_a_mem(state: &mut types::GameState, code_bytes: &[u8]) -> debug::Deb
     state.pc += 2;
 
     debug_format!("LD mem[0x{:02x}] => A", addr)
+}
+
+pub fn store_a_mem(state: &mut GameState, code_bytes: &[u8]) -> debug::Debug {
+    let addr = (0xff00 as u16).wrapping_add(code_bytes[0] as u16);
+    let value = types::get_register(state, &types::Register::A);
+    state.memory[addr as usize] = value;
+
+    state.ticks += 12;
+    state.pc += 2;
+
+    debug_format!("LD A => mem[0x{:02x}]", addr)
 }
