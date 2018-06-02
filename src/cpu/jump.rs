@@ -51,7 +51,7 @@ fn ubyte_to_sbyte(value: u8) -> i16 {
 pub fn jump_cond_imm(state: &mut types::GameState, code_bytes: &[u8],
                 condition: Condition) -> debug::Debug {
 
-    let (jump, name) = match condition {
+    let (jump, _name) = match condition {
         Condition::NotZero => (!state.flags.zero, "NZ"),
         Condition::NoCarry => (!state.flags.carry, "NC"),
     };
@@ -61,18 +61,18 @@ pub fn jump_cond_imm(state: &mut types::GameState, code_bytes: &[u8],
         /* Account for the size of this instruction in the offset */
         state.pc = (state.pc as i32 + offset as i32 + 2) as u16;
         state.ticks += 12;
-        debug_format!("JP {} to 0x{:04x}", name, state.pc)
+        debug_format!("JP {} to 0x{:04x}", _name, state.pc)
     }
     else {
         state.pc += 2;
         state.ticks += 8;
-        debug_format!("JP {}: not taken", name)
+        debug_format!("JP {}: not taken", _name)
     }
 }
 
 pub fn ret_cond(state: &mut types::GameState, condition: Condition) -> debug::Debug {
 
-    let (do_return, name) = match condition {
+    let (do_return, _name) = match condition {
         Condition::NotZero => (!state.flags.zero, "NZ"),
         Condition::NoCarry => (!state.flags.carry, "NC"),
     };
@@ -80,11 +80,11 @@ pub fn ret_cond(state: &mut types::GameState, condition: Condition) -> debug::De
     if do_return {
         state.pc = pop_value(state);
         state.ticks += 20;
-        debug_format!("RET {}: taken", name)
+        debug_format!("RET {}: taken", _name)
     }
     else {
         state.pc += 1;
         state.ticks += 8;
-        debug_format!("RET {}: not taken", name)
+        debug_format!("RET {}: not taken", _name)
     }
 }

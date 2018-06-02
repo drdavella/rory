@@ -2,7 +2,7 @@ use cpu::types;
 use cpu::debug;
 
 
-fn do_op_reg<F>(op: F, state: &mut types::GameState, index: u8, label: &str) -> debug::Debug
+fn do_op_reg<F>(op: F, state: &mut types::GameState, index: u8, _label: &str) -> debug::Debug
     where F: Fn(u8, u8) -> u8 {
 
     let source = &types::REGISTER_LIST[index as usize];
@@ -18,7 +18,7 @@ fn do_op_reg<F>(op: F, state: &mut types::GameState, index: u8, label: &str) -> 
     }
     /* TODO: update flags, etc. */
 
-    debug_format!("{} {}", label, types::reg_to_str(source))
+    debug_format!("{} {}", _label, types::reg_to_str(source))
 }
 
 pub fn add_reg(state: &mut types::GameState, index: u8) -> debug::Debug {
