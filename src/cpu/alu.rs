@@ -1,8 +1,10 @@
 use cpu::types;
-use cpu::debug;
+use cpu::types::GameState;
+
+use cpu::debug::Debug;
 
 
-fn do_op_reg<F>(op: F, state: &mut types::GameState, index: u8, _label: &str) -> debug::Debug
+fn do_op_reg<F>(op: F, state: &mut GameState, index: u8, _label: &str) -> Debug
     where F: Fn(u8, u8) -> u8 {
 
     let source = &types::REGISTER_LIST[index as usize];
@@ -21,22 +23,22 @@ fn do_op_reg<F>(op: F, state: &mut types::GameState, index: u8, _label: &str) ->
     debug_format!("{} {}", _label, types::reg_to_str(source))
 }
 
-pub fn add_reg(state: &mut types::GameState, index: u8) -> debug::Debug {
+pub fn add_reg(state: &mut GameState, index: u8) -> Debug {
     let add = |x: u8, y: u8| x.wrapping_add(y);
     do_op_reg(add, state, index, "ADD")
 }
 
-pub fn and_reg(state: &mut types::GameState, index: u8) -> debug::Debug {
+pub fn and_reg(state: &mut GameState, index: u8) -> Debug {
     let and = |x, y| x & y;
     do_op_reg(and, state, index, "AND")
 }
 
-pub fn xor_reg(state: &mut types::GameState, index: u8) -> debug::Debug {
+pub fn xor_reg(state: &mut GameState, index: u8) -> Debug {
     let xor = |x, y| x ^ y;
     do_op_reg(xor, state, index, "XOR")
 }
 
-pub fn dec_reg(state: &mut types::GameState, opcode: u8) -> debug::Debug {
+pub fn dec_reg(state: &mut GameState, opcode: u8) -> Debug {
 
     let index = ((opcode & 0xf) >> 3) + ((opcode >> 4) << 1);
     let reg = &types::REGISTER_LIST[index as usize];
