@@ -1,3 +1,6 @@
+use std::ops::{Index,IndexMut};
+
+
 pub struct Registers {
     pub a: u8,
     pub b: u8,
@@ -20,6 +23,22 @@ pub struct GameState {
     pub flags: Flags,
     pub regs: Registers,
     pub memory: [u8; 0x10000],
+}
+
+impl Index<usize> for GameState {
+    type Output = u8;
+
+    fn index<'a>(&'a self, index: usize) -> &Self::Output {
+        println!("IMMUTABLE HEY THERE");
+        &self.memory[index]
+    }
+}
+
+impl IndexMut<usize> for GameState {
+    fn index_mut<'a>(&'a mut self, index: usize) -> &mut Self::Output {
+        println!("HEY THERE");
+        &mut self.memory[index]
+    }
 }
 
 pub enum Register {
