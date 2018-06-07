@@ -94,7 +94,7 @@ pub fn load_dword_imm(state: &mut GameState, opcode: u8,
 pub fn store_and_update(state: &mut GameState, operation: Operation) -> Debug {
 
     let addr = types::get_hl(state);
-    state.memory[addr as usize] = types::get_register(state, &Register::A);
+    state[addr as usize] = types::get_register(state, &Register::A);
 
     let new_addr = match operation {
         Operation::Decrement => addr.wrapping_sub(1),
@@ -112,7 +112,7 @@ pub fn store_and_update(state: &mut GameState, operation: Operation) -> Debug {
 pub fn load_and_update(state: &mut GameState, operation: Operation) -> Debug {
 
     let addr = types::get_hl(state);
-    let value = state.memory[addr as usize];
+    let value = state[addr as usize];
     types::set_register(state, &Register::A, value);
 
     let new_addr = match operation {
@@ -130,7 +130,7 @@ pub fn load_and_update(state: &mut GameState, operation: Operation) -> Debug {
 
 pub fn store_imm_addr(state: &mut GameState, code_bytes: &[u8]) -> Debug {
     let addr = ((code_bytes[1] as u16) << 8) | code_bytes[0] as u16;
-    state.memory[addr as usize] = types::get_register(state, &Register::A);
+    state[addr as usize] = types::get_register(state, &Register::A);
 
     state.ticks += 16;
     state.pc += 3;
@@ -140,7 +140,7 @@ pub fn store_imm_addr(state: &mut GameState, code_bytes: &[u8]) -> Debug {
 
 pub fn load_a_mem(state: &mut GameState, code_bytes: &[u8]) -> Debug {
     let addr = (0xff00 as u16).wrapping_add(code_bytes[0] as u16);
-    let value = state.memory[addr as usize];
+    let value = state[addr as usize];
     types::set_register(state, &Register::A, value);
 
     state.ticks += 12;
@@ -152,7 +152,7 @@ pub fn load_a_mem(state: &mut GameState, code_bytes: &[u8]) -> Debug {
 pub fn store_a_mem(state: &mut GameState, code_bytes: &[u8]) -> Debug {
     let addr = (0xff00 as u16).wrapping_add(code_bytes[0] as u16);
     let value = types::get_register(state, &Register::A);
-    state.memory[addr as usize] = value;
+    state[addr as usize] = value;
 
     state.ticks += 12;
     state.pc += 2;
