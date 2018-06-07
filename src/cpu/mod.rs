@@ -61,6 +61,9 @@ fn decode(rom_array: &Vec<u8>, state: &mut types::GameState) {
         /* STORE AND INC/DEC */
         0x22 => memory::store_and_update(state, memory::Operation::Increment),
         0x32 => memory::store_and_update(state, memory::Operation::Decrement),
+        /* LOAD AND INC/DEC */
+        0x2a => memory::load_and_update(state, memory::Operation::Increment),
+        0x3a => memory::load_and_update(state, memory::Operation::Decrement),
         /* LD SINGLE WORD */
         0x06 | 0x16 | 0x26 | 0x36 | 0x0e | 0x1e | 0x2e | 0x3e =>
             memory::load_word_imm(state, opcode, code_bytes),

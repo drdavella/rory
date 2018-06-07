@@ -109,6 +109,25 @@ pub fn store_and_update(state: &mut GameState, operation: Operation) -> Debug {
     debug_format!("LD (HL +/-): A => mem[0x{:04x}]", addr)
 }
 
+pub fn load_and_update(state: &mut GameState, operation: Operation) -> Debug {
+
+    let addr = types::get_hl(state);
+    let value = state.memory[addr as usize];
+    types::set_register(state, &Register::A, value);
+
+    let new_addr = match operation {
+        Operation::Decrement => addr.wrapping_sub(1),
+        Operation::Increment => addr.wrapping_add(1),
+    };
+
+    types::set_hl(state, new_addr);
+
+    state.ticks += 8;
+    state.pc += 1;
+
+    debug_format!("LD (HL +/-): mem[0x{:04x}] => A", addr)
+}
+
 pub fn store_imm_addr(state: &mut GameState, code_bytes: &[u8]) -> Debug {
     let addr = ((code_bytes[1] as u16) << 8) | code_bytes[0] as u16;
     state.memory[addr as usize] = types::get_register(state, &Register::A);
