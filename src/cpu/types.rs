@@ -25,19 +25,19 @@ pub struct GameState {
     pub memory: [u8; 0x10000],
 }
 
-impl Index<usize> for GameState {
+impl Index<u16> for GameState {
     type Output = u8;
 
-    fn index<'a>(&'a self, index: usize) -> &Self::Output {
+    fn index<'a>(&'a self, index: u16) -> &Self::Output {
         println!("IMMUTABLE HEY THERE");
-        &self.memory[index]
+        &self.memory[index as usize]
     }
 }
 
-impl IndexMut<usize> for GameState {
-    fn index_mut<'a>(&'a mut self, index: usize) -> &mut Self::Output {
+impl IndexMut<u16> for GameState {
+    fn index_mut<'a>(&'a mut self, index: u16) -> &mut Self::Output {
         println!("HEY THERE");
-        &mut self.memory[index]
+        &mut self.memory[index as usize]
     }
 }
 
