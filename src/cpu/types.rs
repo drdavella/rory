@@ -29,15 +29,21 @@ impl Index<u16> for GameState {
     type Output = u8;
 
     fn index<'a>(&'a self, index: u16) -> &Self::Output {
-        println!("IMMUTABLE HEY THERE");
         &self.memory[index as usize]
     }
 }
 
 impl IndexMut<u16> for GameState {
     fn index_mut<'a>(&'a mut self, index: u16) -> &mut Self::Output {
-        println!("HEY THERE");
-        &mut self.memory[index as usize]
+        match index {
+            0x0100 ... 0x3fff => panic!("Attempted write to cartridge ROM"),
+            0x4000 ... 0x7fff => panic!("Attempted write to switchable ROM bank"),
+            0xff00 ... 0xff7f => {
+                println!("Write to hardware I/O register: 0x{:04x}", index);
+                &mut self.memory[index as usize]
+            }
+            _ => &mut self.memory[index as usize]
+        }
     }
 }
 
