@@ -1,6 +1,3 @@
-use std::ops::{Index,IndexMut};
-
-
 pub struct Registers {
     pub a: u8,
     pub b: u8,
@@ -25,24 +22,20 @@ pub struct GameState {
     pub memory: [u8; 0x10000],
 }
 
-impl Index<u16> for GameState {
-    type Output = u8;
-
-    fn index<'a>(&'a self, index: u16) -> &Self::Output {
-        &self.memory[index as usize]
+impl GameState {
+    pub fn read_mem(&self, index: u16) -> u8 {
+        self.memory[index as usize]
     }
-}
 
-impl IndexMut<u16> for GameState {
-    fn index_mut<'a>(&'a mut self, index: u16) -> &mut Self::Output {
+    pub fn write_mem(&mut self, index: u16, value: u8) {
         match index {
             0x0100 ... 0x3fff => panic!("Attempted write to cartridge ROM"),
             0x4000 ... 0x7fff => panic!("Attempted write to switchable ROM bank"),
             0xff00 ... 0xff7f => {
                 println!("Write to hardware I/O register: 0x{:04x}", index);
-                &mut self.memory[index as usize]
+                self.memory[index as usize] = value;
             }
-            _ => &mut self.memory[index as usize]
+            _ => self.memory[index as usize] = value
         }
     }
 }
