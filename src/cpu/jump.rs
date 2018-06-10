@@ -14,29 +14,11 @@ pub fn jump_uncond_imm(state: &mut GameState, code_bytes: &[u8]) -> Debug {
     debug_format!("0x{:04x}", new_addr)
 }
 
-fn push_value(state: &mut GameState, value: u16) {
-    /* Make sure the order of POP reverses this order */
-    state.sp = state.sp.wrapping_sub(1);
-    state.memory[state.sp as usize] = (value & 0xff) as u8;
-    state.sp = state.sp.wrapping_sub(1);
-    state.memory[state.sp as usize] = (value >> 8) as u8;
-}
-
-fn pop_value(state: &mut GameState) -> u16 {
-
-    let mut new_val = (state.memory[state.sp as usize] as u16) << 8;
-    state.sp = state.sp.wrapping_add(1);
-    new_val |= state.memory[state.sp as usize] as u16;
-    state.sp = state.sp.wrapping_add(1);
-
-    new_val
-}
-
 pub fn call_uncond_imm(state: &mut GameState, code_bytes: &[u8]) -> Debug {
     let new_addr = (code_bytes[1] as u16) << 8 | (code_bytes[0] as u16);
     let call_pc = state.pc + 3;
 
-    push_value(state, call_pc);
+    state.push(call_pc);
 
     state.pc = new_addr;
     state.ticks += 24;
@@ -78,7 +60,7 @@ pub fn ret_cond(state: &mut GameState, condition: Condition) -> Debug {
     };
 
     if do_return {
-        state.pc = pop_value(state);
+        state.pc = state.pop();
         state.ticks += 20;
         debug_format!("RET {}: taken", _name)
     }

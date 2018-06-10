@@ -23,6 +23,7 @@ pub struct GameState {
 }
 
 impl GameState {
+
     pub fn read_mem(&self, index: u16) -> u8 {
         self.memory[index as usize]
     }
@@ -32,11 +33,31 @@ impl GameState {
             0x0100 ... 0x3fff => panic!("Attempted write to cartridge ROM"),
             0x4000 ... 0x7fff => panic!("Attempted write to switchable ROM bank"),
             0xff00 ... 0xff7f => {
-                println!("Write to hardware I/O register: 0x{:04x}", index);
+                debug_println!(
+                    "Write to hardware I/O register: mem[0x{:04x}] = 0x{:02}",
+                    index, value);
                 self.memory[index as usize] = value;
             }
             _ => self.memory[index as usize] = value
         }
+    }
+
+    pub fn push(&mut self, value: u16) {
+        let mut sp = self.sp;
+        sp = sp.wrapping_sub(1);
+        self.write_mem(sp, (value & 0xff) as u8);
+        sp = sp.wrapping_sub(1);
+        self.write_mem(sp, (value >> 8) as u8);
+        self.sp = sp;
+    }
+
+    pub fn pop(&mut self) -> u16 {
+        let mut new_val = (self.read_mem(self.sp) as u16) << 8;
+        self.sp = self.sp.wrapping_add(1);
+        new_val |= self.read_mem(self.sp) as u16;
+        self.sp = self.sp.wrapping_add(1);
+
+        new_val
     }
 }
 
