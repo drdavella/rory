@@ -20,12 +20,39 @@ pub struct GameState {
     pub flags: Flags,
     pub regs: Registers,
     pub memory: [u8; 0x10000],
+    hardware_regs: [u8; 0x80],
+}
+
+impl Default for GameState {
+    fn default() -> GameState {
+        GameState {
+            pc: 0,
+            sp: 0,
+            ticks: 0,
+            flags: Flags {
+                zero: false,
+                carry: false,
+            },
+            regs: Registers{
+                a: 0, b:0, c:0, d:0, e:0, h:0, l:0
+            },
+            memory: [0; 0x10000],
+            hardware_regs: [0; 0x80],
+        }
+    }
 }
 
 impl GameState {
 
     pub fn read_mem(&self, index: u16) -> u8 {
-        self.memory[index as usize]
+        match index {
+            0xff00 ... 0xff7f => {
+                debug_println!(
+                    "Read from hardware I/O register: mem[0x{:04x}]", index);
+                self.hardware_regs[(index - 0xff00) as usize]
+            }
+            _ => self.memory[index as usize]
+        }
     }
 
     pub fn write_mem(&mut self, index: u16, value: u8) {
@@ -36,7 +63,7 @@ impl GameState {
                 debug_println!(
                     "Write to hardware I/O register: mem[0x{:04x}] = 0x{:02}",
                     index, value);
-                self.memory[index as usize] = value;
+                self.hardware_regs[(index - 0xff00) as usize] = value;
             }
             _ => self.memory[index as usize] = value
         }

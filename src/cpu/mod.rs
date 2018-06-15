@@ -17,14 +17,7 @@ pub fn emulate(rom_array: Vec<u8>) {
         pc: 0x100,
         sp: 0xfff3,
         ticks: 0,
-        flags: types::Flags {
-            zero: false,
-            carry: false,
-        },
-        regs: types::Registers{
-            a: 0, b:0, c:0, d:0, e:0, h:0, l:0
-        },
-        memory: [0; 0x10000],
+        .. Default::default()
     };
 
     loop {
