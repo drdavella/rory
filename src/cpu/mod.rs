@@ -65,6 +65,9 @@ fn decode(rom_array: &Vec<u8>, state: &mut types::GameState) {
         /* LD IMM ADDR */
         0xd0 => jump::ret_cond(state, jump::Condition::NoCarry),
         0xea => memory::store_imm_addr(state, code_bytes),
+        /* LD INDIRECT ADDR */
+        0xe2 => memory::store_a_indirect_c(state),
+        0xf2 => memory::load_a_indirect_c(state),
         /* LDH (a8), A */
         0xe0 => memory::store_a_mem(state, code_bytes),
         /* LDH A, (a8) */

@@ -161,3 +161,29 @@ pub fn store_a_mem(state: &mut GameState, code_bytes: &[u8]) -> Debug {
 
     debug_format!("LD A => mem[0x{:02x}]", addr)
 }
+
+pub fn store_a_indirect_c(state: &mut GameState) -> Debug {
+
+    let regc = types::get_register(state, &Register::C);
+    let addr = (0xff00 as u16).wrapping_add(regc as u16);
+    let value = types::get_register(state, &Register::A);
+    state.write_mem(addr, value);
+
+    state.ticks += 8;
+    state.pc += 2;
+
+    debug_format!("LD A => mem[C]")
+}
+
+pub fn load_a_indirect_c(state: &mut GameState) -> Debug {
+
+    let regc = types::get_register(state, &Register::C);
+    let addr = (0xff00 as u16).wrapping_add(regc as u16);
+    let value = state.read_mem(addr);
+    types::set_register(state, &Register::A, value);
+
+    state.ticks += 8;
+    state.pc += 2;
+
+    debug_format!("LD mem[C] => A")
+}
