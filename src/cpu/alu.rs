@@ -8,17 +8,29 @@ fn do_op_reg<F>(op: F, state: &mut GameState, index: u8, _label: &str) -> Debug
     where F: Fn(u8, u8) -> u8 {
 
     let source = &types::REGISTER_LIST[index as usize];
+    let op0 = types::get_register(state, &types::Register::A);
+
+    let op1;
+    let ticks;
+
     match source {
-        &types::Register::HL => panic!("AND from HL is not implemented"),
+        &types::Register::HL => {
+            let addr = types::get_hl(state);
+            op1 = state.read_mem(addr);
+
+            ticks = 8;
+        },
         _ => {
-            let op0 = types::get_register(state, &types::Register::A);
-            let op1 = types::get_register(state, source);
-            types::set_register(state, &types::Register::A, op(op0, op1));
-            state.ticks += 4;
-            state.pc += 1;
+            op1 = types::get_register(state, source);
+            ticks = 4;
         }
     }
+
+    types::set_register(state, &types::Register::A, op(op0, op1));
+
     /* TODO: update flags, etc. */
+    state.ticks += ticks;
+    state.pc += 1;
 
     debug_format!("{} {}", _label, types::reg_to_str(source))
 }
