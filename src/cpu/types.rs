@@ -85,6 +85,32 @@ impl GameState {
 
         new_val
     }
+
+    pub fn set_register(&mut self, reg: &Register, val: u8) {
+        match reg {
+            &Register::A => self.regs.a = val,
+            &Register::B => self.regs.b = val,
+            &Register::C => self.regs.c = val,
+            &Register::D => self.regs.d = val,
+            &Register::E => self.regs.e = val,
+            &Register::H => self.regs.h = val,
+            &Register::L => self.regs.l = val,
+            &Register::HL => panic!("Can't set HL as single register")
+        };
+    }
+
+    pub fn get_register(&self, reg: &Register) -> u8 {
+        match reg {
+            &Register::A => self.regs.a,
+            &Register::B => self.regs.b,
+            &Register::C => self.regs.c,
+            &Register::D => self.regs.d,
+            &Register::E => self.regs.e,
+            &Register::H => self.regs.h,
+            &Register::L => self.regs.l,
+            &Register::HL => panic!("Can't get HL as single register")
+        }
+    }
 }
 
 pub enum Register {
@@ -107,32 +133,6 @@ pub fn reg_to_str(reg: &Register) -> &str {
         &Register::H => "H",
         &Register::L => "L",
         &Register::HL => "HL"
-    }
-}
-
-pub fn set_register(state: &mut GameState, reg: &Register, val: u8) {
-    match reg {
-        &Register::A => state.regs.a = val,
-        &Register::B => state.regs.b = val,
-        &Register::C => state.regs.c = val,
-        &Register::D => state.regs.d = val,
-        &Register::E => state.regs.e = val,
-        &Register::H => state.regs.h = val,
-        &Register::L => state.regs.l = val,
-        &Register::HL => panic!("Can't set HL as single register")
-    };
-}
-
-pub fn get_register(state: &GameState, reg: &Register) -> u8 {
-    match reg {
-        &Register::A => state.regs.a,
-        &Register::B => state.regs.b,
-        &Register::C => state.regs.c,
-        &Register::D => state.regs.d,
-        &Register::E => state.regs.e,
-        &Register::H => state.regs.h,
-        &Register::L => state.regs.l,
-        &Register::HL => panic!("Can't get HL as single register")
     }
 }
 

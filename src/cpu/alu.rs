@@ -8,7 +8,7 @@ fn do_op_reg<F>(op: F, state: &mut GameState, index: u8, _label: &str) -> Debug
     where F: Fn(u8, u8) -> u8 {
 
     let source = &types::REGISTER_LIST[index as usize];
-    let op0 = types::get_register(state, &types::Register::A);
+    let op0 = state.get_register(&types::Register::A);
 
     let op1;
     let ticks;
@@ -21,12 +21,12 @@ fn do_op_reg<F>(op: F, state: &mut GameState, index: u8, _label: &str) -> Debug
             ticks = 8;
         },
         _ => {
-            op1 = types::get_register(state, source);
+            op1 = state.get_register(source);
             ticks = 4;
         }
     }
 
-    types::set_register(state, &types::Register::A, op(op0, op1));
+    state.set_register(&types::Register::A, op(op0, op1));
 
     /* TODO: update flags, etc. */
     state.ticks += ticks;
@@ -63,8 +63,8 @@ pub fn dec_reg(state: &mut GameState, opcode: u8) -> Debug {
     let new_val = match reg {
         &types::Register::HL => panic!("DEC HL is not implemented"),
         _ => {
-            let new_val = types::get_register(state, reg).wrapping_sub(1);
-            types::set_register(state, reg, new_val);
+            let new_val = state.get_register(reg).wrapping_sub(1);
+            state.set_register(reg, new_val);
             state.ticks += 4;
             new_val
         }

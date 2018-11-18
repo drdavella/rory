@@ -21,8 +21,8 @@ pub fn load_reg(state: &mut GameState, opcode: u8) -> Debug {
         (&Register::HL, _) => panic!("Load to/from HL not implemented"),
         (_, &Register::HL) => panic!("Load to/from HL not implemented"),
         (_, _) => {
-            let reg_val = types::get_register(state, source);
-            types::set_register(state, dest, reg_val);
+            let reg_val = state.get_register(source);
+            state.set_register(dest, reg_val);
             state.ticks += 4;
             state.pc += 1;
         }
@@ -43,7 +43,7 @@ pub fn load_word_imm(state: &mut GameState, opcode: u8,
     match reg {
         &Register::HL => panic!("Load to HL not implemented"),
         _ => {
-            types::set_register(state, reg, code_bytes[0]);
+            state.set_register(reg, code_bytes[0]);
             state.ticks += 8;
         }
     }
@@ -63,8 +63,8 @@ fn load_compound_register(state: &mut GameState, opcode: u8,
         _ => panic!("Unrecognized opcode: 0x{:02x}", opcode)
     };
 
-    types::set_register(state, &high, code_bytes[1]);
-    types::set_register(state, &low, code_bytes[0]);
+    state.set_register(&high, code_bytes[1]);
+    state.set_register(&low, code_bytes[0]);
 
     debug_format!("LD 0x{:02x}{:02x} => {}{}",
         code_bytes[1], code_bytes[0],
@@ -94,7 +94,7 @@ pub fn load_dword_imm(state: &mut GameState, opcode: u8,
 pub fn store_and_update(state: &mut GameState, operation: Operation) -> Debug {
 
     let addr = types::get_hl(state);
-    let value = types::get_register(state, &Register::A);
+    let value = state.get_register(&Register::A);
     state.write_mem(addr, value);
 
     let new_addr = match operation {
@@ -114,7 +114,7 @@ pub fn load_and_update(state: &mut GameState, operation: Operation) -> Debug {
 
     let addr = types::get_hl(state);
     let value = state.read_mem(addr);
-    types::set_register(state, &Register::A, value);
+    state.set_register(&Register::A, value);
 
     let new_addr = match operation {
         Operation::Decrement => addr.wrapping_sub(1),
@@ -131,7 +131,7 @@ pub fn load_and_update(state: &mut GameState, operation: Operation) -> Debug {
 
 pub fn store_imm_addr(state: &mut GameState, code_bytes: &[u8]) -> Debug {
     let addr = ((code_bytes[1] as u16) << 8) | code_bytes[0] as u16;
-    let value = types::get_register(state, &Register::A);
+    let value = state.get_register(&Register::A);
     state.write_mem(addr, value);
 
     state.ticks += 16;
@@ -143,7 +143,7 @@ pub fn store_imm_addr(state: &mut GameState, code_bytes: &[u8]) -> Debug {
 pub fn load_a_mem(state: &mut GameState, code_bytes: &[u8]) -> Debug {
     let addr = (0xff00 as u16).wrapping_add(code_bytes[0] as u16);
     let value = state.read_mem(addr);
-    types::set_register(state, &Register::A, value);
+    state.set_register(&Register::A, value);
 
     state.ticks += 12;
     state.pc += 2;
@@ -153,7 +153,7 @@ pub fn load_a_mem(state: &mut GameState, code_bytes: &[u8]) -> Debug {
 
 pub fn store_a_mem(state: &mut GameState, code_bytes: &[u8]) -> Debug {
     let addr = (0xff00 as u16).wrapping_add(code_bytes[0] as u16);
-    let value = types::get_register(state, &Register::A);
+    let value = state.get_register(&Register::A);
     state.write_mem(addr, value);
 
     state.ticks += 12;
@@ -164,9 +164,9 @@ pub fn store_a_mem(state: &mut GameState, code_bytes: &[u8]) -> Debug {
 
 pub fn store_a_indirect_c(state: &mut GameState) -> Debug {
 
-    let regc = types::get_register(state, &Register::C);
+    let regc = state.get_register(&Register::C);
     let addr = (0xff00 as u16).wrapping_add(regc as u16);
-    let value = types::get_register(state, &Register::A);
+    let value = state.get_register(&Register::A);
     state.write_mem(addr, value);
 
     state.ticks += 8;
@@ -177,10 +177,10 @@ pub fn store_a_indirect_c(state: &mut GameState) -> Debug {
 
 pub fn load_a_indirect_c(state: &mut GameState) -> Debug {
 
-    let regc = types::get_register(state, &Register::C);
+    let regc = state.get_register(&Register::C);
     let addr = (0xff00 as u16).wrapping_add(regc as u16);
     let value = state.read_mem(addr);
-    types::set_register(state, &Register::A, value);
+    state.set_register(&Register::A, value);
 
     state.ticks += 8;
     state.pc += 2;
