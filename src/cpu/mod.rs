@@ -13,12 +13,7 @@ pub fn emulate(rom_array: Vec<u8>) {
     debug_println!("RAM size:       0x{:02x}", rom_array[0x149]);
 
     /* initialize emulator state */
-    let mut state = types::GameState{
-        pc: 0x100,
-        sp: 0xfff3,
-        ticks: 0,
-        .. Default::default()
-    };
+    let mut state = types::GameState::initialize(0x100, 0xfff3);
 
     loop {
         decode(&rom_array, &mut state);

@@ -23,11 +23,13 @@ pub struct GameState {
     hardware_regs: [u8; 0x80],
 }
 
-impl Default for GameState {
-    fn default() -> GameState {
+impl GameState {
+
+    /* Constructor for new state starting with given pc and sp */
+    pub fn initialize(pc: u16, sp: u16) -> GameState {
         GameState {
-            pc: 0,
-            sp: 0,
+            pc: pc,
+            sp: sp,
             ticks: 0,
             flags: Flags {
                 zero: false,
@@ -40,9 +42,6 @@ impl Default for GameState {
             hardware_regs: [0; 0x80],
         }
     }
-}
-
-impl GameState {
 
     pub fn read_mem(&self, index: u16) -> u8 {
         match index {
