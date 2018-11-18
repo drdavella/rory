@@ -38,6 +38,11 @@ pub fn xor_reg(state: &mut GameState, index: u8) -> Debug {
     do_op_reg(xor, state, index, "XOR")
 }
 
+pub fn or_reg(state: &mut GameState, index: u8) -> Debug {
+    let or = |x, y| (x | y);
+    do_op_reg(or, state, index, "OR")
+}
+
 pub fn dec_reg(state: &mut GameState, opcode: u8) -> Debug {
 
     let index = ((opcode & 0xf) >> 3) + ((opcode >> 4) << 1);
