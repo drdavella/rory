@@ -111,6 +111,15 @@ impl GameState {
             &Register::HL => panic!("Can't get HL as single register")
         }
     }
+
+    pub fn set_hl(&mut self, val: u16) {
+        self.regs.h = (val >> 8) as u8;
+        self.regs.l = (val & 0xff) as u8;
+    }
+
+    pub fn get_hl(&self) -> u16 {
+        ((self.regs.h as u16) << 8) | (self.regs.l as u16)
+    }
 }
 
 pub enum Register {
@@ -134,13 +143,4 @@ pub fn reg_to_str(reg: &Register) -> &str {
         &Register::L => "L",
         &Register::HL => "HL"
     }
-}
-
-pub fn set_hl(state: &mut GameState, val: u16) {
-    state.regs.h = (val >> 8) as u8;
-    state.regs.l = (val & 0xff) as u8;
-}
-
-pub fn get_hl(state: &GameState) -> u16 {
-    ((state.regs.h as u16) << 8) | (state.regs.l as u16)
 }

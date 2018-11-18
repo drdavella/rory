@@ -93,7 +93,7 @@ pub fn load_dword_imm(state: &mut GameState, opcode: u8,
 
 pub fn store_and_update(state: &mut GameState, operation: Operation) -> Debug {
 
-    let addr = types::get_hl(state);
+    let addr = state.get_hl();
     let value = state.get_register(&Register::A);
     state.write_mem(addr, value);
 
@@ -102,7 +102,7 @@ pub fn store_and_update(state: &mut GameState, operation: Operation) -> Debug {
         Operation::Increment => addr.wrapping_add(1),
     };
 
-    types::set_hl(state, new_addr);
+    state.set_hl(new_addr);
 
     state.ticks += 8;
     state.pc += 1;
@@ -112,7 +112,7 @@ pub fn store_and_update(state: &mut GameState, operation: Operation) -> Debug {
 
 pub fn load_and_update(state: &mut GameState, operation: Operation) -> Debug {
 
-    let addr = types::get_hl(state);
+    let addr = state.get_hl();
     let value = state.read_mem(addr);
     state.set_register(&Register::A, value);
 
@@ -121,7 +121,7 @@ pub fn load_and_update(state: &mut GameState, operation: Operation) -> Debug {
         Operation::Increment => addr.wrapping_add(1),
     };
 
-    types::set_hl(state, new_addr);
+    state.set_hl(new_addr);
 
     state.ticks += 8;
     state.pc += 1;

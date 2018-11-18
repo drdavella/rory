@@ -15,7 +15,7 @@ fn do_op_reg<F>(op: F, state: &mut GameState, index: u8, _label: &str) -> Debug
 
     match source {
         &types::Register::HL => {
-            let addr = types::get_hl(state);
+            let addr = state.get_hl();
             op1 = state.read_mem(addr);
 
             ticks = 8;
