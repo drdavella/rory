@@ -42,16 +42,16 @@ fn decode(rom_array: &Vec<u8>, state: &mut types::GameState) {
         /* LD REG -> REG */
         0x40 ... 0x7f => memory::load_reg(state, opcode),
         /* ADD REG */
-        0x80 ... 0x87 => alu::add_reg(state, (opcode & 0x0f)),
+        0x80 ... 0x87 => state.add_reg((opcode & 0x0f)),
         /* AND REG */
-        0xa0 ... 0xa7 => alu::and_reg(state, (opcode & 0x0f)),
+        0xa0 ... 0xa7 => state.and_reg((opcode & 0x0f)),
         /* XOR REG */
-        0xa8 ... 0xaf => alu::xor_reg(state, (opcode & 0x0f) - 0x8),
+        0xa8 ... 0xaf => state.xor_reg((opcode & 0x0f) - 0x8),
         /* OR REG */
-        0xb0 ... 0xb7 => alu::or_reg(state, (opcode & 0xf)),
+        0xb0 ... 0xb7 => state.or_reg((opcode & 0xf)),
         /* DEC REG */
         0x05 | 0x15 | 0x25 | 0x35 | 0x0d | 0x1d | 0x2d | 0x3d =>
-            alu::dec_reg(state, opcode),
+            state.dec_reg(opcode),
         /* STORE AND INC/DEC */
         0x22 => memory::store_and_update(state, memory::Operation::Increment),
         0x32 => memory::store_and_update(state, memory::Operation::Decrement),

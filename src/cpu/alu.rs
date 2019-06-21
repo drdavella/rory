@@ -4,58 +4,59 @@ use cpu::types::GameState;
 use cpu::debug::Debug;
 
 
-fn do_op_reg<F>(op: F, state: &mut GameState, index: u8, _label: &str) -> Debug
+impl GameState {
+fn do_op_reg<F>(&mut self, op: F, index: u8, _label: &str) -> Debug
     where F: Fn(u8, u8) -> u8 {
 
     let source = &types::REGISTER_LIST[index as usize];
-    let op0 = state.get_register(&types::Register::A);
+    let op0 = self.get_register(&types::Register::A);
 
     let op1;
     let ticks;
 
     match source {
         &types::Register::HL => {
-            let addr = state.get_hl();
-            op1 = state.read_mem(addr);
+            let addr = self.get_hl();
+            op1 = self.read_mem(addr);
 
             ticks = 8;
         },
         _ => {
-            op1 = state.get_register(source);
+            op1 = self.get_register(source);
             ticks = 4;
         }
     }
 
-    state.set_register(&types::Register::A, op(op0, op1));
+    self.set_register(&types::Register::A, op(op0, op1));
 
     /* TODO: update flags, etc. */
-    state.ticks += ticks;
-    state.pc += 1;
+    self.ticks += ticks;
+    self.pc += 1;
 
     debug_format!("{} {}", _label, types::reg_to_str(source))
 }
 
-pub fn add_reg(state: &mut GameState, index: u8) -> Debug {
+pub fn add_reg(&mut self, index: u8) -> Debug {
     let add = |x: u8, y: u8| x.wrapping_add(y);
-    do_op_reg(add, state, index, "ADD")
+    self.do_op_reg(add, index, "ADD")
 }
 
-pub fn and_reg(state: &mut GameState, index: u8) -> Debug {
+pub fn and_reg(&mut self, index: u8) -> Debug {
     let and = |x, y| x & y;
-    do_op_reg(and, state, index, "AND")
+    self.do_op_reg(and, index, "AND")
 }
 
-pub fn xor_reg(state: &mut GameState, index: u8) -> Debug {
+pub fn xor_reg(&mut self, index: u8) -> Debug {
     let xor = |x, y| x ^ y;
-    do_op_reg(xor, state, index, "XOR")
+    self.do_op_reg(xor, index, "XOR")
 }
 
-pub fn or_reg(state: &mut GameState, index: u8) -> Debug {
+pub fn or_reg(&mut self, index: u8) -> Debug {
     let or = |x, y| (x | y);
-    do_op_reg(or, state, index, "OR")
+    self.do_op_reg(or, index, "OR")
 }
 
-pub fn dec_reg(state: &mut GameState, opcode: u8) -> Debug {
+pub fn dec_reg(&mut self, opcode: u8) -> Debug {
 
     let index = ((opcode & 0xf) >> 3) + ((opcode >> 4) << 1);
     let reg = &types::REGISTER_LIST[index as usize];
@@ -63,16 +64,17 @@ pub fn dec_reg(state: &mut GameState, opcode: u8) -> Debug {
     let new_val = match reg {
         &types::Register::HL => panic!("DEC HL is not implemented"),
         _ => {
-            let new_val = state.get_register(reg).wrapping_sub(1);
-            state.set_register(reg, new_val);
-            state.ticks += 4;
+            let new_val = self.get_register(reg).wrapping_sub(1);
+            self.set_register(reg, new_val);
+            self.ticks += 4;
             new_val
         }
     };
 
-    state.flags.zero = new_val == 0x00;
+    self.flags.zero = new_val == 0x00;
 
-    state.pc += 1;
+    self.pc += 1;
 
     debug_format!("DEC {}", types::reg_to_str(&reg))
 }
+} /* impl GameState */
