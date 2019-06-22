@@ -9,8 +9,8 @@ pub enum Operation {
     Increment, Decrement
 }
 
-
-pub fn load_reg(state: &mut GameState, opcode: u8) -> Debug {
+impl GameState {
+pub fn load_reg(&mut self, opcode: u8) -> Debug {
     let high = opcode >> 4;
     let low = opcode & 0xf;
     let dest_idx = (low / 8) + (high - 0x4) * 2;
@@ -21,10 +21,10 @@ pub fn load_reg(state: &mut GameState, opcode: u8) -> Debug {
         (&Register::HL, _) => panic!("Load to/from HL not implemented"),
         (_, &Register::HL) => panic!("Load to/from HL not implemented"),
         (_, _) => {
-            let reg_val = state.get_register(source);
-            state.set_register(dest, reg_val);
-            state.ticks += 4;
-            state.pc += 1;
+            let reg_val = self.get_register(source);
+            self.set_register(dest, reg_val);
+            self.ticks += 4;
+            self.pc += 1;
         }
     }
 
@@ -33,8 +33,7 @@ pub fn load_reg(state: &mut GameState, opcode: u8) -> Debug {
             types::reg_to_str(dest))
 }
 
-pub fn load_word_imm(state: &mut GameState, opcode: u8,
-                     code_bytes: &[u8]) -> Debug {
+pub fn load_word_imm(&mut self, opcode: u8, code_bytes: &[u8]) -> Debug {
     let high = opcode >> 4;
     let low = opcode & 0xf;
     let dest_idx = (low >> 3) + (high * 2);
@@ -43,19 +42,17 @@ pub fn load_word_imm(state: &mut GameState, opcode: u8,
     match reg {
         &Register::HL => panic!("Load to HL not implemented"),
         _ => {
-            state.set_register(reg, code_bytes[0]);
-            state.ticks += 8;
+            self.set_register(reg, code_bytes[0]);
+            self.ticks += 8;
         }
     }
 
-    state.pc += 2;
+    self.pc += 2;
 
     debug_format!("LD 0x{:02x} => {}", code_bytes[0], types::reg_to_str(reg))
 }
 
-fn load_compound_register(state: &mut GameState, opcode: u8,
-                          code_bytes: &[u8]) -> Debug {
-
+fn load_compound_register(&mut self, opcode: u8, code_bytes: &[u8]) -> Debug {
     let (high, low) = match opcode {
         0x01 => (Register::B, Register::C),
         0x11 => (Register::D, Register::E),
@@ -63,127 +60,123 @@ fn load_compound_register(state: &mut GameState, opcode: u8,
         _ => panic!("Unrecognized opcode: 0x{:02x}", opcode)
     };
 
-    state.set_register(&high, code_bytes[1]);
-    state.set_register(&low, code_bytes[0]);
+    self.set_register(&high, code_bytes[1]);
+    self.set_register(&low, code_bytes[0]);
 
     debug_format!("LD 0x{:02x}{:02x} => {}{}",
         code_bytes[1], code_bytes[0],
         types::reg_to_str(&high), types::reg_to_str(&low))
 }
 
-pub fn load_dword_imm(state: &mut GameState, opcode: u8,
-                      code_bytes: &[u8]) -> Debug {
-
+pub fn load_dword_imm(&mut self, opcode: u8, code_bytes: &[u8]) -> Debug {
     let msg = match opcode {
         0x31 => {
             /* Load stack pointer */
-            state.sp = ((code_bytes[1] as u16) << 8) | (code_bytes[0] as u16);
-            debug_format!("LD 0x{:04x} => SP", state.sp)
+            self.sp = ((code_bytes[1] as u16) << 8) | (code_bytes[0] as u16);
+            debug_format!("LD 0x{:04x} => SP", self.sp)
         }
         _ => {
-            load_compound_register(state, opcode, code_bytes)
+            self.load_compound_register(opcode, code_bytes)
         }
     };
 
-    state.ticks += 12;
-    state.pc += 3;
+    self.ticks += 12;
+    self.pc += 3;
 
     msg
 }
 
-pub fn store_and_update(state: &mut GameState, operation: Operation) -> Debug {
-
-    let addr = state.get_hl();
-    let value = state.get_register(&Register::A);
-    state.write_mem(addr, value);
+pub fn store_and_update(&mut self, operation: Operation) -> Debug {
+    let addr = self.get_hl();
+    let value = self.get_register(&Register::A);
+    self.write_mem(addr, value);
 
     let new_addr = match operation {
         Operation::Decrement => addr.wrapping_sub(1),
         Operation::Increment => addr.wrapping_add(1),
     };
 
-    state.set_hl(new_addr);
+    self.set_hl(new_addr);
 
-    state.ticks += 8;
-    state.pc += 1;
+    self.ticks += 8;
+    self.pc += 1;
 
     debug_format!("LD (HL +/-): A => mem[0x{:04x}]", addr)
 }
 
-pub fn load_and_update(state: &mut GameState, operation: Operation) -> Debug {
+pub fn load_and_update(&mut self, operation: Operation) -> Debug {
 
-    let addr = state.get_hl();
-    let value = state.read_mem(addr);
-    state.set_register(&Register::A, value);
+    let addr = self.get_hl();
+    let value = self.read_mem(addr);
+    self.set_register(&Register::A, value);
 
     let new_addr = match operation {
         Operation::Decrement => addr.wrapping_sub(1),
         Operation::Increment => addr.wrapping_add(1),
     };
 
-    state.set_hl(new_addr);
+    self.set_hl(new_addr);
 
-    state.ticks += 8;
-    state.pc += 1;
+    self.ticks += 8;
+    self.pc += 1;
 
     debug_format!("LD (HL +/-): mem[0x{:04x}] => A", addr)
 }
 
-pub fn store_imm_addr(state: &mut GameState, code_bytes: &[u8]) -> Debug {
+pub fn store_imm_addr(&mut self, code_bytes: &[u8]) -> Debug {
     let addr = ((code_bytes[1] as u16) << 8) | code_bytes[0] as u16;
-    let value = state.get_register(&Register::A);
-    state.write_mem(addr, value);
+    let value = self.get_register(&Register::A);
+    self.write_mem(addr, value);
 
-    state.ticks += 16;
-    state.pc += 3;
+    self.ticks += 16;
+    self.pc += 3;
 
     debug_format!("LD A => mem[0x{:04x}]", addr)
 }
 
-pub fn load_a_mem(state: &mut GameState, code_bytes: &[u8]) -> Debug {
+pub fn load_a_mem(&mut self, code_bytes: &[u8]) -> Debug {
     let addr = (0xff00 as u16).wrapping_add(code_bytes[0] as u16);
-    let value = state.read_mem(addr);
-    state.set_register(&Register::A, value);
+    let value = self.read_mem(addr);
+    self.set_register(&Register::A, value);
 
-    state.ticks += 12;
-    state.pc += 2;
+    self.ticks += 12;
+    self.pc += 2;
 
     debug_format!("LD mem[0x{:02x}] => A", addr)
 }
 
-pub fn store_a_mem(state: &mut GameState, code_bytes: &[u8]) -> Debug {
+pub fn store_a_mem(&mut self, code_bytes: &[u8]) -> Debug {
     let addr = (0xff00 as u16).wrapping_add(code_bytes[0] as u16);
-    let value = state.get_register(&Register::A);
-    state.write_mem(addr, value);
+    let value = self.get_register(&Register::A);
+    self.write_mem(addr, value);
 
-    state.ticks += 12;
-    state.pc += 2;
+    self.ticks += 12;
+    self.pc += 2;
 
     debug_format!("LD A => mem[0x{:02x}]", addr)
 }
 
-pub fn store_a_indirect_c(state: &mut GameState) -> Debug {
-
-    let regc = state.get_register(&Register::C);
+pub fn store_a_indirect_c(&mut self) -> Debug {
+    let regc = self.get_register(&Register::C);
     let addr = (0xff00 as u16).wrapping_add(regc as u16);
-    let value = state.get_register(&Register::A);
-    state.write_mem(addr, value);
+    let value = self.get_register(&Register::A);
+    self.write_mem(addr, value);
 
-    state.ticks += 8;
-    state.pc += 2;
+    self.ticks += 8;
+    self.pc += 2;
 
     debug_format!("LD A => mem[C]")
 }
 
-pub fn load_a_indirect_c(state: &mut GameState) -> Debug {
-
-    let regc = state.get_register(&Register::C);
+pub fn load_a_indirect_c(&mut self) -> Debug {
+    let regc = self.get_register(&Register::C);
     let addr = (0xff00 as u16).wrapping_add(regc as u16);
-    let value = state.read_mem(addr);
-    state.set_register(&Register::A, value);
+    let value = self.read_mem(addr);
+    self.set_register(&Register::A, value);
 
-    state.ticks += 8;
-    state.pc += 2;
+    self.ticks += 8;
+    self.pc += 2;
 
     debug_format!("LD mem[C] => A")
 }
+} /* impl GameState */
