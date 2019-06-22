@@ -41,15 +41,15 @@ fn decode(&mut self, rom_array: &Vec<u8>) {
         /* DISABLE INTERRUPT */
         0xf3 => { self.pc +=1; self.ticks += 4; debug_format!("DI") },
         /* LD REG -> REG */
-        0x40 ... 0x7f => self.load_reg(opcode),
+        0x40 ..= 0x7f => self.load_reg(opcode),
         /* ADD REG */
-        0x80 ... 0x87 => self.add_reg((opcode & 0x0f)),
+        0x80 ..= 0x87 => self.add_reg(opcode & 0x0f),
         /* AND REG */
-        0xa0 ... 0xa7 => self.and_reg((opcode & 0x0f)),
+        0xa0 ..= 0xa7 => self.and_reg(opcode & 0x0f),
         /* XOR REG */
-        0xa8 ... 0xaf => self.xor_reg((opcode & 0x0f) - 0x8),
+        0xa8 ..= 0xaf => self.xor_reg((opcode & 0x0f) - 0x8),
         /* OR REG */
-        0xb0 ... 0xb7 => self.or_reg((opcode & 0xf)),
+        0xb0 ..= 0xb7 => self.or_reg(opcode & 0xf),
         /* DEC REG */
         0x05 | 0x15 | 0x25 | 0x35 | 0x0d | 0x1d | 0x2d | 0x3d =>
             self.dec_reg(opcode),

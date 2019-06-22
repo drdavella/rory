@@ -45,7 +45,7 @@ pub fn initialize(pc: u16, sp: u16) -> GameState {
 
 pub fn read_mem(&self, index: u16) -> u8 {
     match index {
-        0xff00 ... 0xff7f => {
+        0xff00 ..= 0xff7f => {
             debug_println!(
                 "Read from hardware I/O register: mem[0x{:04x}]", index);
             self.hardware_regs[(index - 0xff00) as usize]
@@ -56,9 +56,9 @@ pub fn read_mem(&self, index: u16) -> u8 {
 
 pub fn write_mem(&mut self, index: u16, value: u8) {
     match index {
-        0x0100 ... 0x3fff => panic!("Attempted write to cartridge ROM"),
-        0x4000 ... 0x7fff => panic!("Attempted write to switchable ROM bank"),
-        0xff00 ... 0xff7f => {
+        0x0100 ..= 0x3fff => panic!("Attempted write to cartridge ROM"),
+        0x4000 ..= 0x7fff => panic!("Attempted write to switchable ROM bank"),
+        0xff00 ..= 0xff7f => {
             debug_println!(
                 "Write to hardware I/O register: mem[0x{:04x}] = 0x{:02}",
                 index, value);

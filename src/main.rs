@@ -7,7 +7,7 @@ use std::error::Error;
 mod cpu;
 
 
-fn read_file(filename: &str) -> Result<Vec<u8>, Box<Error>> {
+fn read_file(filename: &str) -> Result<Vec<u8>, Box<dyn Error>> {
     let mut file = File::open(filename)?;
 
     let mut buffer = vec![];
