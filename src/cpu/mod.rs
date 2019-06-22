@@ -35,9 +35,9 @@ fn decode(&mut self, rom_array: &Vec<u8>) {
         /* HALT (must be matched before LD REG) */
         0x76 => panic!("HALT"),
         /* UNCONDITIONAL JUMP IMM */
-        0xc3 => jump::jump_uncond_imm(self, code_bytes),
-        0xcd => jump::call_uncond_imm(self, code_bytes),
-        0x20 => jump::jump_cond_imm(self, code_bytes, jump::Condition::NotZero),
+        0xc3 => self.jump_uncond_imm(code_bytes),
+        0xcd => self.call_uncond_imm(code_bytes),
+        0x20 => self.jump_cond_imm(code_bytes, jump::Condition::NotZero),
         /* DISABLE INTERRUPT */
         0xf3 => { self.pc +=1; self.ticks += 4; debug_format!("DI") },
         /* LD REG -> REG */
@@ -66,7 +66,7 @@ fn decode(&mut self, rom_array: &Vec<u8>) {
         0x01 | 0x11 | 0x21 | 0x31 =>
             memory::load_dword_imm(self, opcode, code_bytes),
         /* LD IMM ADDR */
-        0xd0 => jump::ret_cond(self, jump::Condition::NoCarry),
+        0xd0 => self.ret_cond(jump::Condition::NoCarry),
         0xea => memory::store_imm_addr(self, code_bytes),
         /* LD INDIRECT ADDR */
         0xe2 => memory::store_a_indirect_c(self),
