@@ -10,7 +10,9 @@ pub struct Registers {
 
 pub struct Flags {
     pub zero: bool,
-    pub carry: bool
+    pub subtract: bool,
+    pub halfcarry: bool,
+    pub carry: bool,
 }
 
 pub struct GameState {
@@ -33,6 +35,8 @@ pub fn initialize(pc: u16, sp: u16) -> GameState {
         ticks: 0,
         flags: Flags {
             zero: false,
+            subtract: false,
+            halfcarry: false,
             carry: false,
         },
         regs: Registers{

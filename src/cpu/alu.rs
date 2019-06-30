@@ -5,7 +5,8 @@ use cpu::debug::Debug;
 
 
 impl GameState {
-fn do_op_reg<F>(&mut self, op: F, index: u8, _label: &str) -> Debug
+
+fn do_op_reg<F>(&mut self, op: F, index: u8, _label: &str) -> (u8, u8, u8, Debug)
     where F: Fn(u8, u8) -> u8 {
 
     let source = &types::REGISTER_LIST[index as usize];
@@ -27,33 +28,62 @@ fn do_op_reg<F>(&mut self, op: F, index: u8, _label: &str) -> Debug
         }
     }
 
-    self.set_register(&types::Register::A, op(op0, op1));
+    let result = op(op0, op1);
+    self.set_register(&types::Register::A, result);
 
-    /* TODO: update flags, etc. */
     self.ticks += ticks;
     self.pc += 1;
 
-    debug_format!("{} {}", _label, types::reg_to_str(source))
+    let dbg = debug_format!("{} {}", _label, types::reg_to_str(source));
+    (op0, op1, result, dbg)
 }
 
 pub fn add_reg(&mut self, index: u8) -> Debug {
     let add = |x: u8, y: u8| x.wrapping_add(y);
-    self.do_op_reg(add, index, "ADD")
+    let (op0, op1, result, output) = self.do_op_reg(add, index, "ADD");
+
+    self.flags.zero = result == 0;
+    self.flags.subtract = false;
+    self.flags.halfcarry = (op0 & 0xf) + (op1 & 0xf) > 0xf;
+    self.flags.carry = result < op0 || result < op1;
+
+    output
 }
 
 pub fn and_reg(&mut self, index: u8) -> Debug {
     let and = |x, y| x & y;
-    self.do_op_reg(and, index, "AND")
+    let (_op0, _op1, result, output) = self.do_op_reg(and, index, "AND");
+
+    self.flags.zero = result == 0;
+    self.flags.subtract = false;
+    self.flags.halfcarry = true;
+    self.flags.carry = false;
+
+    output
 }
 
 pub fn xor_reg(&mut self, index: u8) -> Debug {
     let xor = |x, y| x ^ y;
-    self.do_op_reg(xor, index, "XOR")
+    let (_op0, _op1, result, output) = self.do_op_reg(xor, index, "XOR");
+
+    self.flags.zero = result == 0;
+    self.flags.subtract = false;
+    self.flags.halfcarry = false;
+    self.flags.carry = false;
+
+    output
 }
 
 pub fn or_reg(&mut self, index: u8) -> Debug {
     let or = |x, y| (x | y);
-    self.do_op_reg(or, index, "OR")
+    let (_op0, _op1, result, output) = self.do_op_reg(or, index, "OR");
+
+    self.flags.zero = result == 0;
+    self.flags.subtract = false;
+    self.flags.halfcarry = false;
+    self.flags.carry = false;
+
+    output
 }
 
 pub fn dec_reg(&mut self, opcode: u8) -> Debug {
@@ -71,7 +101,11 @@ pub fn dec_reg(&mut self, opcode: u8) -> Debug {
         }
     };
 
-    self.flags.zero = new_val == 0x00;
+    self.flags.zero = new_val == 0;
+    self.flags.subtract = true;
+    /* Set if no borrow from bit 4 */
+    self.flags.halfcarry = new_val != 0x0f;
+    /* DOES NOT UPDATE CARRY FLAG */
 
     self.pc += 1;
 
