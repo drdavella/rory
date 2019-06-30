@@ -38,6 +38,7 @@ fn decode(&mut self, rom_array: &Vec<u8>) {
         0xc3 => self.jump_uncond_imm(code_bytes),
         0xcd => self.call_uncond_imm(code_bytes),
         0x20 => self.jump_cond_imm(code_bytes, jump::Condition::NotZero),
+        0x28 => self.jump_cond_imm(code_bytes, jump::Condition::Zero),
         /* DISABLE INTERRUPT */
         0xf3 => { self.pc +=1; self.ticks += 4; debug_format!("DI") },
         /* LD REG -> REG */

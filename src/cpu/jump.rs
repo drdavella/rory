@@ -2,6 +2,7 @@ use cpu::types::GameState;
 use cpu::debug::Debug;
 
 pub enum Condition {
+    Zero,
     NotZero,
     NoCarry,
 }
@@ -35,6 +36,7 @@ pub fn jump_cond_imm(&mut self, code_bytes: &[u8],
                      condition: Condition) -> Debug {
 
     let (jump, _name) = match condition {
+        Condition::Zero => (self.flags.zero, "Z"),
         Condition::NotZero => (!self.flags.zero, "NZ"),
         Condition::NoCarry => (!self.flags.carry, "NC"),
     };
@@ -56,6 +58,7 @@ pub fn jump_cond_imm(&mut self, code_bytes: &[u8],
 pub fn ret_cond(&mut self, condition: Condition) -> Debug {
 
     let (do_return, _name) = match condition {
+        Condition::Zero => (self.flags.zero, "Z"),
         Condition::NotZero => (!self.flags.zero, "NZ"),
         Condition::NoCarry => (!self.flags.carry, "NC"),
     };
