@@ -4,9 +4,12 @@ use cpu::types::GameState;
 use cpu::debug::Debug;
 
 
+type OpResult = (u8, u8, u8, Debug);
+
+
 impl GameState {
 
-fn do_op_reg<F>(&mut self, op: F, index: u8, _label: &str) -> (u8, u8, u8, Debug)
+fn do_op_reg<F>(&mut self, op: F, index: u8, _label: &str) -> OpResult
     where F: Fn(u8, u8) -> u8 {
 
     let source = &types::REGISTER_LIST[index as usize];
