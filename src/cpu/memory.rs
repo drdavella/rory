@@ -19,18 +19,28 @@ pub fn load_reg(&mut self, opcode: u8) -> Debug {
     let dest = &types::REGISTER_LIST[dest_idx as usize];
     match (source, dest) {
         (&Register::HL, _) => panic!("Load to/from HL not implemented"),
-        (_, &Register::HL) => panic!("Load to/from HL not implemented"),
+        (_, &Register::HL) => {
+            let addr = self.get_hl();
+            let reg_val = self.get_register(source);
+            self.write_mem(addr, reg_val);
+            self.ticks += 8;
+            self.pc += 1;
+
+            debug_format!("LD {} => 0x{:04x}",
+                    types::reg_to_str(source), addr)
+        },
         (_, _) => {
             let reg_val = self.get_register(source);
             self.set_register(dest, reg_val);
             self.ticks += 4;
             self.pc += 1;
+
+            debug_format!("LD {} => {}",
+                    types::reg_to_str(source),
+                    types::reg_to_str(dest))
         }
     }
 
-    debug_format!("LD {} => {}",
-            types::reg_to_str(source),
-            types::reg_to_str(dest))
 }
 
 pub fn load_word_imm(&mut self, opcode: u8, code_bytes: &[u8]) -> Debug {
