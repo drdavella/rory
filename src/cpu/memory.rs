@@ -26,8 +26,7 @@ pub fn load_reg(&mut self, opcode: u8) -> Debug {
             self.ticks += 8;
             self.pc += 1;
 
-            debug_format!("LD {} => 0x{:04x}",
-                    types::reg_to_str(source), addr)
+            debug_format!("LD {:?} => 0x{:04x}", source, addr)
         },
         (_, _) => {
             let reg_val = self.get_register(source);
@@ -35,9 +34,7 @@ pub fn load_reg(&mut self, opcode: u8) -> Debug {
             self.ticks += 4;
             self.pc += 1;
 
-            debug_format!("LD {} => {}",
-                    types::reg_to_str(source),
-                    types::reg_to_str(dest))
+            debug_format!("LD {:?} => {:?}", source, dest)
         }
     }
 
@@ -59,7 +56,7 @@ pub fn load_word_imm(&mut self, opcode: u8, code_bytes: &[u8]) -> Debug {
 
     self.pc += 2;
 
-    debug_format!("LD 0x{:02x} => {}", code_bytes[0], types::reg_to_str(reg))
+    debug_format!("LD 0x{:02x} => {:?}", code_bytes[0], reg)
 }
 
 fn load_compound_register(&mut self, opcode: u8, code_bytes: &[u8]) -> Debug {
@@ -73,9 +70,8 @@ fn load_compound_register(&mut self, opcode: u8, code_bytes: &[u8]) -> Debug {
     self.set_register(&high, code_bytes[1]);
     self.set_register(&low, code_bytes[0]);
 
-    debug_format!("LD 0x{:02x}{:02x} => {}{}",
-        code_bytes[1], code_bytes[0],
-        types::reg_to_str(&high), types::reg_to_str(&low))
+    debug_format!("LD 0x{:02x}{:02x} => {:?}{:?}",
+        code_bytes[1], code_bytes[0], high, low)
 }
 
 pub fn load_dword_imm(&mut self, opcode: u8, code_bytes: &[u8]) -> Debug {

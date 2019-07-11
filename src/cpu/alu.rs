@@ -37,7 +37,7 @@ fn do_op_reg<F>(&mut self, op: F, index: u8, _label: &str) -> OpResult
     self.ticks += ticks;
     self.pc += 1;
 
-    let dbg = debug_format!("{} {}", _label, types::reg_to_str(source));
+    let dbg = debug_format!("{} {:?}", _label, source);
     (op0, op1, result, dbg)
 }
 
@@ -112,6 +112,6 @@ pub fn dec_reg(&mut self, opcode: u8) -> Debug {
 
     self.pc += 1;
 
-    debug_format!("DEC {}", types::reg_to_str(&reg))
+    debug_format!("DEC {:?}", reg)
 }
 } /* impl GameState */

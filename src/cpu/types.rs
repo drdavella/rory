@@ -126,6 +126,7 @@ pub fn get_hl(&self) -> u16 {
 }
 } /* impl GameState */
 
+#[derive(Debug)]
 pub enum Register {
     A, B, C, D, E, H, L, HL
 }
@@ -135,16 +136,3 @@ pub const REGISTER_LIST: [Register; 8] = [
     Register::H, Register::L, Register::HL, Register::A
 ];
 
-#[allow(dead_code)]
-pub fn reg_to_str(reg: &Register) -> &str {
-    match reg {
-        &Register::A => "A",
-        &Register::B => "B",
-        &Register::C => "C",
-        &Register::D => "D",
-        &Register::E => "E",
-        &Register::H => "H",
-        &Register::L => "L",
-        &Register::HL => "HL"
-    }
-}
